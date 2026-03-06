@@ -5,8 +5,8 @@ This module provides functions to download, cache, and load the cybersecurity at
 
 Functions:
 - download_dataset(): Downloads the latest dataset from KaggleHub and returns the CSV path.
-- load_csv(csv_path): Loads a CSV file into a pandas DataFrame with Streamlit caching.
-- get_dataset(cache=True): Returns the dataset, using a cached copy if available and recent (less than 12 hours old).
+- load_csv(csv_path): Loads a CSV file into a pandas DataFrame.
+- get_dataset(cache=True): Returns the dataset, using a locally cached copy if available and recent (less than 12 hours old).
 
 Usage:
     from utils.data_loader import get_dataset
@@ -17,7 +17,6 @@ import os
 import pandas as pd
 import kagglehub
 import time
-import streamlit as st
 
 DATA_RAW_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw')
 KAGGLE_DATASET_NAME = 'teamincribo/cyber-security-attacks'
@@ -33,9 +32,8 @@ def download_dataset() -> str:
     raise FileNotFoundError('No CSV file found in the Kaggle dataset.')
 
 
-@st.cache_data(ttl=12 * 3600)
 def load_csv(csv_path: str) -> pd.DataFrame:
-    """Load a CSV into a DataFrame with caching for 12 hours."""
+    """Load a CSV file into a pandas DataFrame."""
     return pd.read_csv(csv_path)
 
 

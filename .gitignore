@@ -41,3 +41,6 @@ dist/
 # GeoLite2 Country database and related files
 GeoLite2-Country.mmdb
 GeoLite2-Country*/
+
+# Large data files
+data/raw/

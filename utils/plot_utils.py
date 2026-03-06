@@ -60,7 +60,7 @@ def plot_global_attackers(df_agg: pd.DataFrame):
         hover_name='name',
         color_continuous_scale='Reds',
         template='plotly_dark',
-        title='Global Attacker Origins'
+        title='Global Attacker Origins (Source IP Countries)'
     )
     fig.update_layout(
         template='plotly_dark',
@@ -85,7 +85,7 @@ def plot_attack_type_bar(df_agg: pd.DataFrame):
     Returns a Plotly figure.
     """
     ymax = df_agg['count'].max()
-    ymin = ymax * 0.90  # start at 90% of the max
+    ymin = df_agg['count'].min() * 0.90
     margin = max(1, int(ymax * 0.01))
     ymax = ymax + margin
     fig = px.bar(
@@ -182,7 +182,7 @@ def plot_action_taken_bar(df_agg: pd.DataFrame):
     Returns a Plotly figure.
     """
     ymax = df_agg['count'].max()
-    ymin = ymax * 0.90  # start at 90% of the max
+    ymin = df_agg['count'].min() * 0.90
     margin = max(1, int(ymax * 0.01))
     ymax = ymax + margin
     fig = px.bar(

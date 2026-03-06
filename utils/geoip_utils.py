@@ -6,7 +6,7 @@ This module provides utilities for mapping IP addresses to countries using the G
 Functions:
 - ip_to_country(ip, db_path): Resolve a single IP address to a country.
 - map_ips_to_countries(df, db_path): Add source and destination country columns to a DataFrame.
-- filter_eu_attacks(df, eu_countries): Filter DataFrame rows where attacks involve EU countries.
+- filter_eu_attacks(df, eu_countries): Filter DataFrame rows where attacks affect EU countries.
 
 Usage:
     from utils.geoip_utils import map_ips_to_countries, filter_eu_attacks
@@ -57,13 +57,13 @@ def map_ips_to_countries(df: pd.DataFrame, db_path: str = "GeoLite2-Country.mmdb
 
 def filter_eu_attacks(df: pd.DataFrame, eu_countries: List[str]) -> pd.DataFrame:
     """
-    Filter the DataFrame to include only rows where either the source or destination country is in the EU.
+    Filter the DataFrame to include only rows where the destination country is in the EU.
 
     Parameters:
         df (pd.DataFrame): DataFrame containing 'source_country' and 'destination_country' columns.
         eu_countries (List[str]): List of country names representing the EU.
 
     Returns:
-        pd.DataFrame: Filtered DataFrame containing only attacks involving EU countries.
+        pd.DataFrame: Filtered DataFrame containing only attacks affecting EU countries.
     """
-    return df[(df['source_country'].isin(eu_countries)) | (df['destination_country'].isin(eu_countries))].copy()
+    return df[df['destination_country'].isin(eu_countries)].copy()

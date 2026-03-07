@@ -52,22 +52,29 @@ df_agg = incidents_per_destination_country(df_eu)
 # -------------------------------
 fig = plot_eu_map(df_agg)
 
-col1_top, col2_top = st.columns(2)
+col1_top, col2_top = st.columns([0.7, 1.3])
 
 with col1_top:
-#    st.subheader("EU Cybersecurity Incidents Map")
-    event = st.plotly_chart(
-        fig,
-        use_container_width=True,
-        key="eu_map",
-        on_select="rerun",
-        selection_mode="points",
-        config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True
-        }
-    )
+    with st.container():
+        st.markdown(
+            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
+            unsafe_allow_html=True
+        )
+        event = st.plotly_chart(
+            fig,
+            use_container_width=True,
+            height=320,
+            key="eu_map",
+            on_select="rerun",
+            selection_mode="points",
+            config={
+                'displayModeBar': True,
+                'doubleClick': 'reset',
+                'responsive': True,
+                'scrollZoom': False
+            }
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # Determine selected country from map
 selected_country = None
@@ -107,45 +114,70 @@ fig_ids_ips = plot_ids_ips_alerts_pie(ids_ips_counts)
 
 # Top row: EU map (left), Global origin map (right)
 with col2_top:
-#    st.subheader("Global Origin of Attacks (Source IP Countries)")
     with st.container():
-        st.plotly_chart(fig_attackers, use_container_width=True, config={
+        st.markdown(
+            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(fig_attackers, use_container_width=True, height=320, config={
             'displayModeBar': True,
             'doubleClick': 'reset',
-            'responsive': True
+            'responsive': True,
+            'scrollZoom': False
         })
+        st.markdown('</div>', unsafe_allow_html=True)
 
-# Bottom row: Attack type distribution (left), Additional insights (right)
-col1_bottom, col2_bottom = st.columns(2)
+# Bottom row: All metrics in a single horizontal row
+col1_bottom, col2_bottom, col3_bottom, col4_bottom = st.columns([1.5,1,1.5,1])
+
 with col1_bottom:
-#    st.subheader("Attack Type Distribution")
     with st.container():
-        st.plotly_chart(fig_bar, use_container_width=True, config={
+        st.markdown(
+            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(fig_action, use_container_width=True, height=320, config={
             'displayModeBar': True,
             'doubleClick': 'reset',
             'responsive': True
         })
-#    st.subheader("Severity Levels Distribution")
-    with st.container():
-        st.plotly_chart(fig_severity, use_container_width=True, config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True
-        })
+        st.markdown('</div>', unsafe_allow_html=True)
+
 with col2_bottom:
-#    st.subheader("Actions Taken")
     with st.container():
-        st.plotly_chart(fig_action, use_container_width=True, config={
+        st.markdown(
+            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(fig_ids_ips, use_container_width=True, height=320, config={
             'displayModeBar': True,
             'doubleClick': 'reset',
             'responsive': True
         })
+        st.markdown('</div>', unsafe_allow_html=True)
 
-
-#    st.subheader("IDS/IPS Alerts Counts")
+with col3_bottom:
     with st.container():
-        st.plotly_chart(fig_ids_ips, use_container_width=True, config={
+        st.markdown(
+            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(fig_bar, use_container_width=True, height=320, config={
             'displayModeBar': True,
             'doubleClick': 'reset',
             'responsive': True
         })
+        st.markdown('</div>', unsafe_allow_html=True)
+
+with col4_bottom:
+    with st.container():
+        st.markdown(
+            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(fig_severity, use_container_width=True, height=320, config={
+            'displayModeBar': True,
+            'doubleClick': 'reset',
+            'responsive': True
+        })
+        st.markdown('</div>', unsafe_allow_html=True)

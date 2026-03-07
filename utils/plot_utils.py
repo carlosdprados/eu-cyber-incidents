@@ -18,7 +18,7 @@ def plot_eu_map(df_agg: pd.DataFrame):
         color='count',
         hover_name='name',
         hover_data=hover_data,
-        color_continuous_scale='Reds',
+        color_continuous_scale='Blues',
         template='plotly_dark',
         title='EU Cybersecurity Incidents'
     )
@@ -121,7 +121,7 @@ def plot_severity_pie(df_agg: pd.DataFrame):
         values='count',
         color_discrete_sequence=px.colors.sequential.Reds,
         template='plotly_dark',
-        title='Severity Level Distribution'
+        title='Severity Levels'
     )
     fig.update_layout(
         paper_bgcolor='#0E1117',
@@ -141,9 +141,9 @@ def plot_ids_ips_alerts_pie(df_agg: pd.DataFrame):
         df_agg,
         names='name',
         values='count',
-        color_discrete_sequence=px.colors.sequential.Reds,
+        color_discrete_sequence=px.colors.sequential.Blues,
         template='plotly_dark',
-        title='IDS/IPS Alerts Presence'
+        title='IDS/IPS Alerts'
     )
     fig.update_layout(
         paper_bgcolor='#0E1117',
@@ -190,7 +190,7 @@ def plot_action_taken_bar(df_agg: pd.DataFrame):
         x='name',
         y='count',
         color='count',
-        color_continuous_scale='Reds',
+        color_continuous_scale='Blues',
         template='plotly_dark',
         title='Action Taken'
     )

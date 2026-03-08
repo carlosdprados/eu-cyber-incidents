@@ -24,15 +24,26 @@ from utils.plot_utils import (
 
 st.set_page_config(layout="wide")
 st.title("EU Cybersecurity Incidents: A Dashboard")
+st.caption(
+    "Click any country on the blue map to apply a filter. "
+    "Click country again to clear the selection."
+)
 
 st.markdown(
     """
     <style>
-    div[class*="st-key-neon_panel_"] {
+    div[class*="st-key-neon_panel_blue_"] {
         border: 2px solid #00ffff;
         border-radius: 10px;
         background-color: #0e1117;
         box-shadow: 0 0 15px rgba(0, 255, 255, 0.65);
+        padding: 0.35rem;
+    }
+    div[class*="st-key-neon_panel_red_"] {
+        border: 2px solid #ff4d4d;
+        border-radius: 10px;
+        background-color: #0e1117;
+        box-shadow: 0 0 15px rgba(255, 77, 77, 0.65);
         padding: 0.35rem;
     }
     </style>
@@ -41,13 +52,13 @@ st.markdown(
 )
 
 
-def render_neon_plot(fig, panel_key: str, *, selection: bool = False):
+def render_neon_plot(fig, panel_key: str, *, selection: bool = False, tone: str = "blue"):
     chart_kwargs = {"on_select": "ignore"}
     if selection:
         chart_kwargs["on_select"] = "rerun"
         chart_kwargs["selection_mode"] = "points"
 
-    with st.container(key=f"neon_panel_{panel_key}"):
+    with st.container(key=f"neon_panel_{tone}_{panel_key}"):
         return st.plotly_chart(
             fig,
             use_container_width=True,
@@ -132,7 +143,7 @@ fig_ids_ips = plot_ids_ips_alerts_pie(ids_ips_counts)
 
 # Top row: EU map (left), Global origin map (right)
 with col2_top:
-    render_neon_plot(fig_attackers, "global_attackers")
+    render_neon_plot(fig_attackers, "global_attackers", tone="red")
 
 # Bottom row: All metrics in a single horizontal row
 col1_bottom, col2_bottom, col3_bottom, col4_bottom = st.columns([1.5,1,1.5,1])
@@ -144,7 +155,7 @@ with col2_bottom:
     render_neon_plot(fig_ids_ips, "ids_ips_alerts")
 
 with col3_bottom:
-    render_neon_plot(fig_bar, "attack_types")
+    render_neon_plot(fig_bar, "attack_types", tone="red")
 
 with col4_bottom:
-    render_neon_plot(fig_severity, "severity_levels")
+    render_neon_plot(fig_severity, "severity_levels", tone="red")

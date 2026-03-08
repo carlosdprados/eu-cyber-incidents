@@ -61,7 +61,7 @@ eu-cyber-incidents/
 ## Setup
 1. Clone and enter the repository.
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/carlosdprados/eu-cyber-incidents.git
 cd eu-cyber-incidents
 ```
 
@@ -97,6 +97,18 @@ Run compile check:
 ```bash
 python -m compileall app.py data_pipeline.py utils
 ```
+
+Run lint checks:
+```bash
+pip install -r requirements-dev.txt
+ruff check .
+```
+
+## CI
+GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR and validates:
+- compile checks
+- unit tests
+- Ruff linting
 
 ## Notes for Portfolio Review
 - Insights logic includes thresholding to reduce noisy one-off attackers in selected-country mode (`min_source_incidents=3`).

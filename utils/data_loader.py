@@ -14,9 +14,10 @@ Usage:
 """
 
 import os
-import pandas as pd
-import kagglehub
 import time
+
+import kagglehub
+import pandas as pd
 
 DATA_RAW_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'raw')
 KAGGLE_DATASET_NAME = 'teamincribo/cyber-security-attacks'

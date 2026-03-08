@@ -15,10 +15,11 @@ This script prepares the dataset before any aggregation or visualization steps.
 
 import os
 import time
-from utils.data_loader import get_dataset
-from utils.geoip_utils import map_ips_to_countries, filter_eu_attacks
+
 from utils.data_export import export_filtered_dataset
+from utils.data_loader import get_dataset
 from utils.eu_countries import EU_COUNTRIES
+from utils.geoip_utils import filter_eu_attacks, map_ips_to_countries
 
 PROCESSED_PATH = os.path.join("data", "processed", "filtered_attacks.csv")
 

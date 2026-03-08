@@ -1,7 +1,8 @@
 import streamlit as st
+
 from utils.dashboard_service import (
-    build_eu_map_figure,
     build_dashboard_data,
+    build_eu_map_figure,
     build_figures,
     load_dashboard_dataset,
     parse_selected_country,

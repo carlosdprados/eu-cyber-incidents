@@ -14,9 +14,10 @@ Usage:
     df_eu = filter_eu_attacks(df, eu_countries)
 """
 
-import pandas as pd
+from typing import List, Optional
+
 import geoip2.database
-from typing import Optional, List
+import pandas as pd
 
 
 def _ip_to_country_with_reader(ip: str, reader: geoip2.database.Reader) -> Optional[str]:

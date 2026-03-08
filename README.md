@@ -1,6 +1,11 @@
 # EU Cybersecurity Incidents Dashboard
 
+[![CI](https://github.com/carlosdprados/eu-cyber-incidents/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosdprados/eu-cyber-incidents/actions/workflows/ci.yml)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-Live%20App-FF4B4B?logo=streamlit&logoColor=white)](https://eu-cyber-incidents.streamlit.app)
+
 Interactive Streamlit dashboard that analyzes cyber incidents targeting EU countries, visualizes attacker origins, and highlights country-level insights.
+
+Live app: https://eu-cyber-incidents.streamlit.app
 
 ## Highlights
 - Interactive EU destination map (click-to-filter).

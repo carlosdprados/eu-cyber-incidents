@@ -23,6 +23,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/carlosdprados/eu-cyber-incidents"
 Repository = "https://github.com/carlosdprados/eu-cyber-incidents"
+"Live Demo" = "https://eu-cyber-incidents.streamlit.app"
 
 [project.optional-dependencies]
 dev = [

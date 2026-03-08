@@ -36,6 +36,8 @@ Interactive Streamlit dashboard that analyzes cyber incidents targeting EU count
    - `data_export.py`: processed dataset export
    - `aggregations.py`: reusable aggregation and insight calculations
    - `plot_utils.py`: Plotly chart construction and styling
+   - `dashboard_service.py`: dashboard data orchestration and figure assembly
+   - `ui_components.py`: reusable Streamlit UI/styling components
 
 ## Repository Structure
 ```text
@@ -55,7 +57,9 @@ eu-cyber-incidents/
     ├── data_loader.py
     ├── eu_countries.py
     ├── geoip_utils.py
-    └── plot_utils.py
+    ├── plot_utils.py
+    ├── dashboard_service.py
+    └── ui_components.py
 ```
 
 ## Setup

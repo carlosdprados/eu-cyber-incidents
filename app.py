@@ -9,7 +9,14 @@ from utils.dashboard_service import (
 from utils.ui_components import apply_dashboard_styles, render_insights_panel, render_neon_plot
 
 st.set_page_config(layout="wide")
-st.title("EU Cybersecurity Incidents: A Dashboard")
+title_col, byline_col = st.columns([0.8, 0.2])
+with title_col:
+    st.title("EU Cybersecurity Incidents - A Dashboard")
+with byline_col:
+    st.markdown(
+        "<div style='text-align: right; padding-top: 1.2rem; color: #9aa0a6;'>by @carlosdprados</div>",
+        unsafe_allow_html=True,
+    )
 st.caption(
     "Click any country on the blue map to apply a filter. "
     "Click country again to clear the selection."

@@ -151,3 +151,189 @@ def ids_ips_alerts_counts(df: pd.DataFrame, top_n: int = None) -> pd.DataFrame:
     result = counts.reset_index()
     result.columns = ['name', 'count']
     return result
+
+
+def country_insight_metrics(df: pd.DataFrame, min_incidents: int = 10) -> list[dict]:
+    """
+    Compute country-level insight metrics for dashboard callouts.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame containing destination country and incident attributes.
+        min_incidents (int): Minimum incidents required to be considered in ratio rankings.
+
+    Returns:
+        list[dict]: List of insight dictionaries with keys:
+            ['emoji', 'title', 'country', 'value', 'unit']
+    """
+    required_columns = {'destination_country', 'Action Taken', 'Severity Level'}
+    if not required_columns.issubset(df.columns):
+        return []
+
+    df_plot = df.copy()
+    df_plot['destination_country'] = df_plot['destination_country'].fillna('').astype(str).str.strip()
+    df_plot = df_plot[df_plot['destination_country'] != '']
+    if df_plot.empty:
+        return []
+
+    df_plot['Action Taken'] = df_plot['Action Taken'].fillna('').astype(str).str.strip()
+    df_plot['Severity Level'] = df_plot['Severity Level'].fillna('').astype(str).str.strip()
+
+    country_totals = df_plot.groupby('destination_country').size().rename('total')
+    if country_totals.empty:
+        return []
+
+    eligible_countries = country_totals[country_totals >= min_incidents].index
+    if len(eligible_countries) == 0:
+        eligible_countries = country_totals.index
+
+    def ratio_series(column: str, positive_label: str) -> pd.Series:
+        counts = (
+            df_plot[df_plot[column] == positive_label]
+            .groupby('destination_country')
+            .size()
+            .reindex(country_totals.index, fill_value=0)
+        )
+        return (counts / country_totals).loc[eligible_countries]
+
+    blocked_ratio = ratio_series('Action Taken', 'Blocked')
+    ignored_ratio = ratio_series('Action Taken', 'Ignored')
+    high_severity_ratio = ratio_series('Severity Level', 'High')
+
+    insights = [
+        {
+            'emoji': '🛡️',
+            'title': 'Most Effective Blocker',
+            'country': blocked_ratio.idxmax(),
+            'value': blocked_ratio.max() * 100,
+            'unit': 'blocked',
+        },
+        {
+            'emoji': '😴',
+            'title': 'Laziest Response',
+            'country': ignored_ratio.idxmax(),
+            'value': ignored_ratio.max() * 100,
+            'unit': 'ignored',
+        },
+        {
+            'emoji': '🔥',
+            'title': 'Highest High-Severity Share',
+            'country': high_severity_ratio.idxmax(),
+            'value': high_severity_ratio.max() * 100,
+            'unit': 'high severity',
+        },
+    ]
+    return insights
+
+
+def selected_country_insight_metrics(
+    df: pd.DataFrame, country: str, min_source_incidents: int = 2
+) -> list[dict]:
+    """
+    Compute source-country attacker insights for a selected destination country.
+
+    Parameters:
+        df (pd.DataFrame): DataFrame containing incidents.
+        country (str): Destination country selected from the map.
+
+    Returns:
+        list[dict]: List of insight dictionaries with keys:
+            ['emoji', 'title', 'country', 'value', 'unit']
+    """
+    required_columns = {
+        'destination_country',
+        'source_country',
+        'Attack Type',
+        'Severity Level',
+        'Action Taken',
+    }
+    if not required_columns.issubset(df.columns):
+        return []
+
+    df_plot = df.copy()
+    df_plot['destination_country'] = df_plot['destination_country'].fillna('').astype(str).str.strip()
+    df_plot = df_plot[df_plot['destination_country'] == country]
+    if df_plot.empty:
+        return []
+
+    df_plot['source_country'] = df_plot['source_country'].fillna('').astype(str).str.strip()
+    df_plot = df_plot[df_plot['source_country'] != '']
+    if df_plot.empty:
+        return []
+
+    df_plot['Action Taken'] = df_plot['Action Taken'].fillna('').astype(str).str.strip()
+    df_plot['Attack Type'] = df_plot['Attack Type'].fillna('').astype(str).str.strip()
+    df_plot['Severity Level'] = df_plot['Severity Level'].fillna('').astype(str).str.strip()
+    source_totals = df_plot.groupby('source_country').size()
+    if source_totals.empty:
+        return []
+
+    min_source_incidents = max(1, int(min_source_incidents))
+    eligible_sources = source_totals[source_totals >= min_source_incidents].index
+    if len(eligible_sources) == 0:
+        eligible_sources = source_totals.index
+
+    non_blocked_counts = (
+        df_plot[df_plot['Action Taken'].isin(['Ignored', 'Logged'])]
+        .groupby('source_country')
+        .size()
+        .reindex(source_totals.index, fill_value=0)
+    )
+    penetration_ratio = (non_blocked_counts / source_totals).loc[eligible_sources]
+
+    malware_counts = (
+        df_plot[df_plot['Attack Type'] == 'Malware']
+        .groupby('source_country')
+        .size()
+        .reindex(source_totals.index, fill_value=0)
+    )
+    malware_ratio = (malware_counts / source_totals).loc[eligible_sources]
+
+    high_severity_counts = (
+        df_plot[df_plot['Severity Level'] == 'High']
+        .groupby('source_country')
+        .size()
+        .reindex(source_totals.index, fill_value=0)
+    )
+    high_severity_ratio = (high_severity_counts / source_totals).loc[eligible_sources]
+
+    top_penetrator = penetration_ratio.idxmax()
+    top_malware = malware_ratio.idxmax()
+    top_high_severity = high_severity_ratio.idxmax()
+    
+    def source_label(name: str) -> str:
+        count = int(source_totals[name])
+        noun = 'incident' if count == 1 else 'incidents'
+        return f"{name} ({count:,} {noun})"
+
+    return [
+        {
+            'emoji': '🎯',
+            'title': 'Most Effective Penetrator',
+            'country': (
+                f"{source_label(top_penetrator)} | "
+                f"{int(non_blocked_counts[top_penetrator]):,} non-blocked"
+            ),
+            'value': penetration_ratio.max() * 100,
+            'unit': 'non-blocked share',
+        },
+        {
+            'emoji': '🧬',
+            'title': 'Most Malware-Focused Attacker',
+            'country': (
+                f"{source_label(top_malware)} | "
+                f"{int(malware_counts[top_malware]):,} malware"
+            ),
+            'value': malware_ratio.max() * 100,
+            'unit': 'malware share',
+        },
+        {
+            'emoji': '🔥',
+            'title': 'Highest High-Severity Attacker',
+            'country': (
+                f"{source_label(top_high_severity)} | "
+                f"{int(high_severity_counts[top_high_severity]):,} high severity"
+            ),
+            'value': high_severity_ratio.max() * 100,
+            'unit': 'high-severity share',
+        },
+    ]

@@ -11,7 +11,9 @@ from utils.aggregations import (
     top_attack_types,
     top_severity_levels,
     action_taken_counts,
-    ids_ips_alerts_counts
+    ids_ips_alerts_counts,
+    country_insight_metrics,
+    selected_country_insight_metrics
 )
 from utils.plot_utils import (
     plot_eu_map,
@@ -45,6 +47,39 @@ st.markdown(
         background-color: #0e1117;
         box-shadow: 0 0 15px rgba(255, 77, 77, 0.65);
         padding: 0.35rem;
+    }
+    div[class*="st-key-neon_panel_purple_"] {
+        border: 2px solid #b266ff;
+        border-radius: 10px;
+        background-color: #0e1117;
+        box-shadow: 0 0 15px rgba(178, 102, 255, 0.65);
+        padding: 0.35rem;
+        min-height: 320px;
+        max-height: 320px;
+        overflow-y: auto;
+    }
+    .insight-item {
+        border: 1px solid rgba(178, 102, 255, 0.35);
+        border-radius: 8px;
+        background: linear-gradient(180deg, rgba(178, 102, 255, 0.13), rgba(178, 102, 255, 0.03));
+        padding: 8px 10px;
+        margin-bottom: 8px;
+    }
+    .insight-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #f2e8ff;
+        margin-bottom: 2px;
+        line-height: 1.2;
+    }
+    .insight-country {
+        font-size: 13px;
+        color: #e9ddff;
+        margin-bottom: 2px;
+    }
+    .insight-metric {
+        font-size: 12px;
+        color: #cdb7ee;
     }
     </style>
     """,
@@ -100,7 +135,7 @@ df_agg = incidents_per_destination_country(df_eu)
 # -------------------------------
 fig = plot_eu_map(df_agg)
 
-col1_top, col2_top = st.columns([0.7, 1.3])
+col1_top, col2_top, col3_top = st.columns([0.7, 1.0, 0.49])
 
 with col1_top:
     event = render_neon_plot(fig, "eu_map", selection=True)
@@ -116,8 +151,12 @@ if event and hasattr(event, "selection"):
 # -------------------------------
 if selected_country:
     df_filtered = df_eu[df_eu["destination_country"] == selected_country]
+    panel_caption = f"{selected_country}:"
+    country_insights = selected_country_insight_metrics(df_eu, selected_country)
 else:
     df_filtered = df_eu
+    panel_caption = "Across all EU destination countries:"
+    country_insights = country_insight_metrics(df_eu, min_incidents=10)
 
 # -------------------------------
 # 5️⃣ Aggregations using filtered data
@@ -144,6 +183,27 @@ fig_ids_ips = plot_ids_ips_alerts_pie(ids_ips_counts)
 # Top row: EU map (left), Global origin map (right)
 with col2_top:
     render_neon_plot(fig_attackers, "global_attackers", tone="red")
+
+with col3_top:
+    with st.container(key="neon_panel_purple_country_insights"):
+        st.caption(panel_caption)
+        if country_insights:
+            for insight in country_insights:
+                value_text = (
+                    f"{insight['value']:.1f}%"
+                    if insight['unit'] != 'incidents'
+                    else f"{int(insight['value']):,}"
+                )
+                st.markdown(
+                    "<div class='insight-item'>"
+                    f"<div class='insight-title'>{insight['emoji']} {insight['title']}</div>"
+                    f"<div class='insight-country'>{insight['country']}</div>"
+                    f"<div class='insight-metric'>{value_text} {insight['unit']}</div>"
+                    "</div>",
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.markdown("No country insight metrics available for this dataset.")
 
 # Bottom row: All metrics in a single horizontal row
 col1_bottom, col2_bottom, col3_bottom, col4_bottom = st.columns([1.5,1,1.5,1])

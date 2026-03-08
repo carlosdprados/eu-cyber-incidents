@@ -8,6 +8,7 @@ Interactive Streamlit dashboard that analyzes cyber incidents targeting EU count
 - Action Taken bar chart with fixed category color semantics.
 - Attack Types bar chart with fixed category order and color semantics.
 - Severity Levels and IDS/IPS Alerts pie charts with stable legend/category behavior.
+- Resilient data loading: if external refresh fails (Kaggle/GeoLite), the app falls back to the committed processed CSV when available.
 - Dynamic insights panel:
   - No country selected: cross-country benchmark insights.
   - Country selected: source-country attacker insights for that destination.
@@ -60,6 +61,7 @@ eu-cyber-incidents/
 │   └── processed/
 ├── tests/
 │   ├── test_aggregations.py
+│   ├── test_dashboard_service.py
 │   ├── test_data_loader.py
 │   ├── test_data_pipeline.py
 │   └── test_geoip_utils.py
@@ -90,7 +92,8 @@ source .venv/bin/activate  # macOS/Linux
 
 3. Install dependencies.
 ```bash
-pip install streamlit pandas plotly kagglehub geoip2
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
 
 4. Place `GeoLite2-Country.mmdb` at the project root.
@@ -104,7 +107,7 @@ streamlit run app.py
 ```
 
 ## Tests and Validation
-Run aggregation tests:
+Run full unit test suite:
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
 ```
@@ -125,11 +128,6 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR and validat
 - compile checks
 - unit tests
 - Ruff linting
-
-## Notes for Portfolio Review
-- Insights logic includes thresholding to reduce noisy one-off attackers in selected-country mode (`min_source_incidents=3`).
-- Category ordering and color mapping are explicitly fixed to avoid visual shifts after filtering.
-- GeoIP lookup was optimized to reuse one MaxMind reader per mapping batch.
 
 ## License
 Portfolio and educational use.  

@@ -46,14 +46,38 @@ class DashboardData:
 def ensure_processed_dataset(
     csv_path: str = PROCESSED_CSV_PATH, refresh_window_seconds: int = REFRESH_WINDOW_SECONDS
 ) -> str:
-    """Ensure processed CSV exists and is fresh enough; run pipeline when stale/missing."""
-    run_pipeline = True
-    if os.path.exists(csv_path):
-        file_age = time.time() - os.path.getmtime(csv_path)
-        if file_age < refresh_window_seconds:
-            run_pipeline = False
+    """
+    Ensure processed CSV exists and is fresh enough.
+
+    If refresh fails (e.g., Kaggle auth/GeoLite issues) and a processed file already exists,
+    gracefully fall back to the existing file instead of failing hard.
+    """
+    has_existing = os.path.exists(csv_path)
+    run_pipeline = not has_existing
+
+    if has_existing:
+        try:
+            file_age = time.time() - os.path.getmtime(csv_path)
+            run_pipeline = file_age >= refresh_window_seconds
+        except Exception:
+            # If mtime can't be read, attempt refresh but still keep fallback path.
+            run_pipeline = True
+
     if run_pipeline:
-        data_pipeline.run_data_pipeline()
+        try:
+            produced_path = data_pipeline.run_data_pipeline()
+            if produced_path and os.path.exists(produced_path):
+                return produced_path
+            if os.path.exists(csv_path):
+                return csv_path
+            raise FileNotFoundError("Pipeline did not produce a usable processed CSV.")
+        except Exception as exc:
+            if os.path.exists(csv_path):
+                return csv_path
+            raise RuntimeError(
+                "Failed to prepare processed dataset and no fallback CSV is available."
+            ) from exc
+
     return csv_path
 
 

@@ -25,6 +25,43 @@ from utils.plot_utils import (
 st.set_page_config(layout="wide")
 st.title("EU Cybersecurity Incidents: A Dashboard")
 
+st.markdown(
+    """
+    <style>
+    div[class*="st-key-neon_panel_"] {
+        border: 2px solid #00ffff;
+        border-radius: 10px;
+        background-color: #0e1117;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.65);
+        padding: 0.35rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+def render_neon_plot(fig, panel_key: str, *, selection: bool = False):
+    chart_kwargs = {"on_select": "ignore"}
+    if selection:
+        chart_kwargs["on_select"] = "rerun"
+        chart_kwargs["selection_mode"] = "points"
+
+    with st.container(key=f"neon_panel_{panel_key}"):
+        return st.plotly_chart(
+            fig,
+            use_container_width=True,
+            height=320,
+            key=panel_key,
+            config={
+                "displayModeBar": True,
+                "doubleClick": "reset",
+                "responsive": True,
+                "scrollZoom": False,
+            },
+            **chart_kwargs,
+        )
+
 
 # -------------------------------
 # 1️⃣ Load processed dataset or run pipeline
@@ -55,26 +92,7 @@ fig = plot_eu_map(df_agg)
 col1_top, col2_top = st.columns([0.7, 1.3])
 
 with col1_top:
-    with st.container():
-        st.markdown(
-            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
-            unsafe_allow_html=True
-        )
-        event = st.plotly_chart(
-            fig,
-            use_container_width=True,
-            height=320,
-            key="eu_map",
-            on_select="rerun",
-            selection_mode="points",
-            config={
-                'displayModeBar': True,
-                'doubleClick': 'reset',
-                'responsive': True,
-                'scrollZoom': False
-            }
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+    event = render_neon_plot(fig, "eu_map", selection=True)
 
 # Determine selected country from map
 selected_country = None
@@ -114,70 +132,19 @@ fig_ids_ips = plot_ids_ips_alerts_pie(ids_ips_counts)
 
 # Top row: EU map (left), Global origin map (right)
 with col2_top:
-    with st.container():
-        st.markdown(
-            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
-            unsafe_allow_html=True
-        )
-        st.plotly_chart(fig_attackers, use_container_width=True, height=320, config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True,
-            'scrollZoom': False
-        })
-        st.markdown('</div>', unsafe_allow_html=True)
+    render_neon_plot(fig_attackers, "global_attackers")
 
 # Bottom row: All metrics in a single horizontal row
 col1_bottom, col2_bottom, col3_bottom, col4_bottom = st.columns([1.5,1,1.5,1])
 
 with col1_bottom:
-    with st.container():
-        st.markdown(
-            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
-            unsafe_allow_html=True
-        )
-        st.plotly_chart(fig_action, use_container_width=True, height=320, config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True
-        })
-        st.markdown('</div>', unsafe_allow_html=True)
+    render_neon_plot(fig_action, "action_taken")
 
 with col2_bottom:
-    with st.container():
-        st.markdown(
-            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
-            unsafe_allow_html=True
-        )
-        st.plotly_chart(fig_ids_ips, use_container_width=True, height=320, config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True
-        })
-        st.markdown('</div>', unsafe_allow_html=True)
+    render_neon_plot(fig_ids_ips, "ids_ips_alerts")
 
 with col3_bottom:
-    with st.container():
-        st.markdown(
-            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
-            unsafe_allow_html=True
-        )
-        st.plotly_chart(fig_bar, use_container_width=True, height=320, config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True
-        })
-        st.markdown('</div>', unsafe_allow_html=True)
+    render_neon_plot(fig_bar, "attack_types")
 
 with col4_bottom:
-    with st.container():
-        st.markdown(
-            '<div style="border: 2px solid #00FFFF; border-radius: 10px; padding: 10px; background-color: #0E1117; box-shadow: 0 0 15px #00FFFF;">',
-            unsafe_allow_html=True
-        )
-        st.plotly_chart(fig_severity, use_container_width=True, height=320, config={
-            'displayModeBar': True,
-            'doubleClick': 'reset',
-            'responsive': True
-        })
-        st.markdown('</div>', unsafe_allow_html=True)
+    render_neon_plot(fig_severity, "severity_levels")

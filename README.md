@@ -12,6 +12,15 @@ Interactive Streamlit dashboard that analyzes cyber incidents targeting EU count
   - No country selected: cross-country benchmark insights.
   - Country selected: source-country attacker insights for that destination.
 
+## Screenshots
+Default dashboard view:
+
+![Dashboard default view](assets/full-screenshot.png)
+
+Filtered dashboard view (Spain selected):
+
+![Dashboard Spain filtered](assets/dashboard-screenshot_spain-filtered.png)
+
 ## Current Dashboard Layout
 - Top row:
   - EU incidents map (blue)
@@ -50,7 +59,10 @@ eu-cyber-incidents/
 │   ├── raw/
 │   └── processed/
 ├── tests/
-│   └── test_aggregations.py
+│   ├── test_aggregations.py
+│   ├── test_data_loader.py
+│   ├── test_data_pipeline.py
+│   └── test_geoip_utils.py
 └── utils/
     ├── aggregations.py
     ├── data_export.py

@@ -130,5 +130,5 @@ GitHub Actions workflow (`.github/workflows/ci.yml`) runs on push/PR and validat
 - Ruff linting
 
 ## License
-Portfolio and educational use.  
+This project is licensed under the MIT License. See `LICENSE` for details.  
 Dataset source: Kaggle (`teamincribo/cyber-security-attacks`).

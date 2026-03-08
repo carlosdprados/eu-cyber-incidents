@@ -226,7 +226,7 @@ def country_insight_metrics(df: pd.DataFrame, min_incidents: int = 10) -> list[d
 
 
 def selected_country_insight_metrics(
-    df: pd.DataFrame, country: str, min_source_incidents: int = 2
+    df: pd.DataFrame, country: str, min_source_incidents: int = 3
 ) -> list[dict]:
     """
     Compute source-country attacker insights for a selected destination country.

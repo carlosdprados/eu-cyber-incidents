@@ -1,0 +1,4 @@
+geoip2==5.2.0
+kagglehub==1.0.0
+plotly==6.6.0
+streamlit==1.55.0

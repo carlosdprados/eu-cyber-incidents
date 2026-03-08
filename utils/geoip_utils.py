@@ -19,6 +19,15 @@ import geoip2.database
 from typing import Optional, List
 
 
+def _ip_to_country_with_reader(ip: str, reader: geoip2.database.Reader) -> Optional[str]:
+    """Resolve one IP with an already-open GeoLite2 reader."""
+    try:
+        response = reader.country(ip)
+        return response.country.name
+    except Exception:
+        return None
+
+
 def ip_to_country(ip: str, db_path: str = "GeoLite2-Country.mmdb") -> Optional[str]:
     """
     Map an IP address to its corresponding country name using the GeoLite2 database.
@@ -32,8 +41,7 @@ def ip_to_country(ip: str, db_path: str = "GeoLite2-Country.mmdb") -> Optional[s
     """
     try:
         with geoip2.database.Reader(db_path) as reader:
-            response = reader.country(ip)
-            return response.country.name
+            return _ip_to_country_with_reader(ip, reader)
     except Exception:
         return None
 
@@ -50,8 +58,18 @@ def map_ips_to_countries(df: pd.DataFrame, db_path: str = "GeoLite2-Country.mmdb
         pd.DataFrame: A copy of the input DataFrame with 'source_country' and 'destination_country' columns added.
     """
     df = df.copy()
-    df['source_country'] = df['Source IP Address'].apply(lambda ip: ip_to_country(ip, db_path))
-    df['destination_country'] = df['Destination IP Address'].apply(lambda ip: ip_to_country(ip, db_path))
+    try:
+        with geoip2.database.Reader(db_path) as reader:
+            df['source_country'] = df['Source IP Address'].map(
+                lambda ip: _ip_to_country_with_reader(ip, reader)
+            )
+            df['destination_country'] = df['Destination IP Address'].map(
+                lambda ip: _ip_to_country_with_reader(ip, reader)
+            )
+    except Exception:
+        # Keep pipeline behavior resilient if GeoLite2 DB is unavailable/corrupt.
+        df['source_country'] = None
+        df['destination_country'] = None
     return df
 
 

@@ -199,6 +199,39 @@ class TestAggregations(unittest.TestCase):
         self.assertIn("Italy (2 incidents)", insights[1]["country"])
         self.assertIn("Italy (2 incidents)", insights[2]["country"])
 
+    def test_selected_country_insights_fallback_when_no_source_meets_threshold(self):
+        df = pd.DataFrame(
+            [
+                {
+                    "destination_country": "Latvia",
+                    "source_country": "United States",
+                    "Action Taken": "Ignored",
+                    "Attack Type": "DDoS",
+                    "Severity Level": "Low",
+                },
+                {
+                    "destination_country": "Latvia",
+                    "source_country": "United States",
+                    "Action Taken": "Blocked",
+                    "Attack Type": "Malware",
+                    "Severity Level": "High",
+                },
+                {
+                    "destination_country": "Latvia",
+                    "source_country": "Italy",
+                    "Action Taken": "Logged",
+                    "Attack Type": "Malware",
+                    "Severity Level": "High",
+                },
+            ]
+        )
+
+        # No source has >= 10 incidents, so function should fall back to all sources.
+        insights = selected_country_insight_metrics(df, "Latvia", min_source_incidents=10)
+        self.assertEqual(len(insights), 3)
+        self.assertIn("Italy (1 incident)", insights[1]["country"])
+        self.assertIn("Italy (1 incident)", insights[2]["country"])
+
     def test_missing_columns_returns_empty(self):
         df = pd.DataFrame([{"destination_country": "A"}])
         self.assertEqual(country_insight_metrics(df), [])

@@ -58,7 +58,14 @@ def apply_dashboard_styles() -> None:
     st.markdown(DASHBOARD_STYLES, unsafe_allow_html=True)
 
 
-def render_neon_plot(fig, panel_key: str, *, selection: bool = False, tone: str = "blue"):
+def render_neon_plot(
+    fig,
+    panel_key: str,
+    *,
+    selection: bool = False,
+    tone: str = "blue",
+    height: int = 320,
+):
     """Render a plotly chart inside a neon-styled container."""
     chart_kwargs = {"on_select": "ignore"}
     if selection:
@@ -69,7 +76,7 @@ def render_neon_plot(fig, panel_key: str, *, selection: bool = False, tone: str 
         return st.plotly_chart(
             fig,
             use_container_width=True,
-            height=320,
+            height=height,
             key=panel_key,
             config={
                 "displayModeBar": True,

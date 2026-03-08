@@ -9,7 +9,7 @@ from utils.dashboard_service import (
 )
 from utils.ui_components import apply_dashboard_styles, render_insights_panel, render_neon_plot
 
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
 
 def _is_probably_mobile_client() -> bool:
@@ -19,16 +19,26 @@ def _is_probably_mobile_client() -> bool:
         return False
     headers = getattr(context, "headers", {}) or {}
     user_agent = str(headers.get("user-agent", "")).lower()
-    return any(token in user_agent for token in ("iphone", "ipad", "android", "mobile"))
+    # Treat tablets (e.g., iPad, Android tablets) as desktop layout.
+    if "ipad" in user_agent or "tablet" in user_agent:
+        return False
+    return "iphone" in user_agent or ("android" in user_agent and "mobile" in user_agent)
 
 
 auto_mobile_layout = _is_probably_mobile_client()
-with st.sidebar:
-    mobile_layout = st.toggle(
-        "Mobile-friendly layout",
-        value=auto_mobile_layout,
-        help="Stacks all panels vertically and reduces chart heights for smaller screens.",
-    )
+mobile_layout = auto_mobile_layout
+
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"],
+    [data-testid="stSidebarCollapsedControl"] {
+        display: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 if mobile_layout:
     st.title("EU Cybersecurity Incidents - A Dashboard")
